@@ -1,0 +1,55 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/gaurav/Other_Drive/Udacity/Practice_Sensor_Fusion/2_Lidar_Obstacle_Detection/SFND_Lidar_Obstacle_Detection/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_ccdac/fast"
+/usr/bin/make -f CMakeFiles/cmTC_ccdac.dir/build.make CMakeFiles/cmTC_ccdac.dir/build
+make[1]: Entering directory '/home/gaurav/Other_Drive/Udacity/Practice_Sensor_Fusion/2_Lidar_Obstacle_Detection/SFND_Lidar_Obstacle_Detection/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_ccdac.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_ccdac.dir/CheckSymbolExists.c.o   -c /home/gaurav/Other_Drive/Udacity/Practice_Sensor_Fusion/2_Lidar_Obstacle_Detection/SFND_Lidar_Obstacle_Detection/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_ccdac
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ccdac.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_ccdac.dir/CheckSymbolExists.c.o  -o cmTC_ccdac 
+CMakeFiles/cmTC_ccdac.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x1b): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_ccdac.dir/build.make:97: recipe for target 'cmTC_ccdac' failed
+make[1]: *** [cmTC_ccdac] Error 1
+make[1]: Leaving directory '/home/gaurav/Other_Drive/Udacity/Practice_Sensor_Fusion/2_Lidar_Obstacle_Detection/SFND_Lidar_Obstacle_Detection/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_ccdac/fast' failed
+make: *** [cmTC_ccdac/fast] Error 2
+
+File /home/gaurav/Other_Drive/Udacity/Practice_Sensor_Fusion/2_Lidar_Obstacle_Detection/SFND_Lidar_Obstacle_Detection/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/gaurav/Other_Drive/Udacity/Practice_Sensor_Fusion/2_Lidar_Obstacle_Detection/SFND_Lidar_Obstacle_Detection/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_ba3db/fast"
+/usr/bin/make -f CMakeFiles/cmTC_ba3db.dir/build.make CMakeFiles/cmTC_ba3db.dir/build
+make[1]: Entering directory '/home/gaurav/Other_Drive/Udacity/Practice_Sensor_Fusion/2_Lidar_Obstacle_Detection/SFND_Lidar_Obstacle_Detection/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_ba3db.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_ba3db.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.10/Modules/CheckFunctionExists.c
+Linking C executable cmTC_ba3db
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ba3db.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_ba3db.dir/CheckFunctionExists.c.o  -o cmTC_ba3db -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_ba3db.dir/build.make:97: recipe for target 'cmTC_ba3db' failed
+make[1]: *** [cmTC_ba3db] Error 1
+make[1]: Leaving directory '/home/gaurav/Other_Drive/Udacity/Practice_Sensor_Fusion/2_Lidar_Obstacle_Detection/SFND_Lidar_Obstacle_Detection/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_ba3db/fast' failed
+make: *** [cmTC_ba3db/fast] Error 2
+
+
