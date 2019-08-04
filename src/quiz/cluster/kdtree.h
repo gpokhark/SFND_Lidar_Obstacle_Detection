@@ -27,7 +27,7 @@ struct KdTree
 	void insertHelper(Node *&node, uint depth, std::vector<float> point, int id)
 	{
 		// Tree is empty
-		if(node = NULL)
+		if(node == NULL)
 		{
 			node = new Node(point, id);
 		}

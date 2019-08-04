@@ -97,13 +97,10 @@ int main()
 	//std::vector<std::vector<float>> points = { {-6.2,7}, {-6.3,8.4}, {-5.2,7.1}, {-5.7,6.3} };
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = CreateData(points);
 
-	std::cout << points.size();
-	
 	KdTree *tree = new KdTree;
 
 	for (int i = 0; i < points.size(); i++)
 	{
-		std::cout << points.size();
 		tree->insert(points[i], i);
 	}
 
