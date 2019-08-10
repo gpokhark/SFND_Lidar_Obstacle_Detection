@@ -36,7 +36,6 @@ template <typename PointT>
 std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(pcl::PointIndices::Ptr inliers, typename pcl::PointCloud<PointT>::Ptr cloud)
 {
   // TODO: Create two new point clouds, one cloud with obstacles and other with segmented plane
-
   typename pcl::PointCloud<PointT>::Ptr obstCloud(new pcl::PointCloud<PointT>());
   typename pcl::PointCloud<PointT>::Ptr planeCloud(new pcl::PointCloud<PointT>());
 
@@ -51,7 +50,6 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
   extract.setNegative(true);
   extract.filter(*obstCloud);
   std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> segResult(obstCloud, planeCloud);
-
   // std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> segResult(cloud, cloud);
   return segResult;
 }
@@ -63,6 +61,8 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
   auto startTime = std::chrono::steady_clock::now();
   // pcl::PointIndices::Ptr inliers;
   // TODO:: Fill in this function to find inliers for the cloud.
+
+  // *** PCL segmentation START ***
   pcl::SACSegmentation<PointT> seg;
   pcl::PointIndices::Ptr inliers{new pcl::PointIndices};
   pcl::ModelCoefficients::Ptr coefficients{new pcl::ModelCoefficients};
@@ -76,6 +76,11 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
   // Segment the largest planar component from the input cloud
   seg.setInputCloud(cloud);
   seg.segment(*inliers, *coefficients);
+// *** PCL segmentation END ***
+
+// *** gpokhark segmentation START ***
+// *** gpokhark segmentation END ***
+
   if (inliers->indices.size() == 0)
   {
     std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
@@ -99,9 +104,10 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
   std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
 
   // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
+
+  // *** PCL Implementation Start ***
   typename pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>);
   tree->setInputCloud(cloud);
-
   std::vector<pcl::PointIndices> clusters_indices;
   pcl::EuclideanClusterExtraction<PointT> ec;
   ec.setClusterTolerance(clusterTolerance);
@@ -110,6 +116,10 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
   ec.setSearchMethod(tree);
   ec.setInputCloud(cloud);
   ec.extract(clusters_indices);
+  // *** PCL Implementation End ***
+
+  // *** gpokhark euclidean clustering START ***
+  // *** gpokhark euclidean clustering END ***
 
   for (pcl::PointIndices getIndices : clusters_indices)
   {
