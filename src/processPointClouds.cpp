@@ -76,10 +76,10 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
   // Segment the largest planar component from the input cloud
   seg.setInputCloud(cloud);
   seg.segment(*inliers, *coefficients);
-// *** PCL segmentation END ***
+  // *** PCL segmentation END ***
 
-// *** gpokhark segmentation START ***
-// *** gpokhark segmentation END ***
+  // *** gpokhark segmentation START ***
+  // *** gpokhark segmentation END ***
 
   if (inliers->indices.size() == 0)
   {
@@ -105,27 +105,39 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
 
   // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
 
-  // *** PCL Implementation Start ***
-  typename pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>);
-  tree->setInputCloud(cloud);
-  std::vector<pcl::PointIndices> clusters_indices;
-  pcl::EuclideanClusterExtraction<PointT> ec;
-  ec.setClusterTolerance(clusterTolerance);
-  ec.setMinClusterSize(minSize);
-  ec.setMaxClusterSize(maxSize);
-  ec.setSearchMethod(tree);
-  ec.setInputCloud(cloud);
-  ec.extract(clusters_indices);
-  // *** PCL Implementation End ***
+  // // *** PCL Implementation Start ***
+  // typename pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>);
+  // tree->setInputCloud(cloud);
+  // std::vector<pcl::PointIndices> clusters_indices;
+  // pcl::EuclideanClusterExtraction<PointT> ec;
+  // ec.setClusterTolerance(clusterTolerance);
+  // ec.setMinClusterSize(minSize);
+  // ec.setMaxClusterSize(maxSize);
+  // ec.setSearchMethod(tree);
+  // ec.setInputCloud(cloud);
+  // ec.extract(clusters_indices);
+  // // *** PCL Implementation End ***
 
   // *** gpokhark euclidean clustering START ***
+  KdTree *tree = new KdTree;
+  std::vector<std::vector<float>> points;
+  for (int i = 0; i < cloud->points.size(); i++)
+  {
+    std::vector<float> point({cloud->points[i].x, cloud->points[i].y, cloud->points[i].z});
+    points.push_back(point);
+    tree->insert(points[i], i);
+  }
+  std::vector<std::vector<int>> clusters_indices = euclideanCluster(points, tree, clusterTolerance);
   // *** gpokhark euclidean clustering END ***
 
-  for (pcl::PointIndices getIndices : clusters_indices)
+
+  // for (pcl::PointIndices getIndices : clusters_indices) //PCL implementation
+  for (std::vector<int> getIndices : clusters_indices) // gpokhark implementation
   {
     typename pcl::PointCloud<PointT>::Ptr cloudCluster(new pcl::PointCloud<PointT>);
 
-    for (int index : getIndices.indices)
+    // for (int index : getIndices.indices) //PCL implementation
+    for ( int index : getIndices) // gpokhark implementation
     {
       cloudCluster->points.push_back(cloud->points[index]);
     }

@@ -50,7 +50,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr &viewer)
     bool render_plane = false;
 
     bool render_clusters = true;
-    bool render_box = true;
+    bool render_box = false;
 
     std::vector<Car> cars = initHighway(renderScene, viewer);
 
@@ -68,7 +68,9 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr &viewer)
     // ProcessPointClouds<pcl::PointXYZ> pointProcessor; // normal way to instatiat point processor
     // instantiate on heap
     ProcessPointClouds<pcl::PointXYZ> *pointProcessor = new ProcessPointClouds<pcl::PointXYZ>();
-    std::pair<pcl::PointCloud<pcl::PointXYZ>::Ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr> segmentCloud = pointProcessor->SegmentPlane(inputCloud, 100, 0.2);
+    int maxIterations = 100;
+    float diatanceTolerance = 0.2;
+    std::pair<pcl::PointCloud<pcl::PointXYZ>::Ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr> segmentCloud = pointProcessor->SegmentPlane(inputCloud, maxIterations, diatanceTolerance);
     renderPointCloud(viewer, segmentCloud.first, "obstCloud", Color(1, 0, 0));
 
     if (render_obst)
@@ -76,7 +78,10 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr &viewer)
     if (render_plane)
         renderPointCloud(viewer, segmentCloud.second, "planeCloud", Color(0, 1, 0));
 
-    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 1.0, 3, 30);
+    float clusterTolerance = 3.0;
+    int minClusterSize = 15;
+    int maxClusterSize = 600;
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, clusterTolerance, minClusterSize, maxClusterSize);
 
     int clusterId = 0;
     std::vector<Color> colors = {Color(1, 0, 0), Color(1, 1, 0), Color(0, 0, 1)};
