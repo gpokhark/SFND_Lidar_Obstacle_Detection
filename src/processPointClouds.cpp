@@ -36,7 +36,7 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
 
 // *** gpokhark Ransac implementation START ***
 template <typename PointT>
-std::unordered_set<int> RansacPlane(typename pcl::PointCloud<PointT>::Ptr &cloud, int maxIterations, float distanceTol)
+std::unordered_set<int> RansacPlane(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceTol)
 {
   // Time segmentation process
   auto startTime = std::chrono::steady_clock::now();

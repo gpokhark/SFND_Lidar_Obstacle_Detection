@@ -47,6 +47,6 @@ public:
 
     std::vector<boost::filesystem::path> streamPcd(std::string dataPath);
 
-    std::unordered_set<int> RansacPlane(typename pcl::PointCloud<PointT>::Ptr &cloud, int maxIterations, float distanceTol);
+    std::unordered_set<int> RansacPlane(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceTol);
 };
 #endif /* PROCESSPOINTCLOUDS_H_ */
