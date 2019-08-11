@@ -70,8 +70,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr &viewer)
     ProcessPointClouds<pcl::PointXYZ> *pointProcessor = new ProcessPointClouds<pcl::PointXYZ>();
     int maxIterations = 100;
     float distanceTolerance = 0.2;
-    //std::pair<pcl::PointCloud<pcl::PointXYZ>::Ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr> segmentCloud = pointProcessor->SegmentPlane(inputCloud, maxIterations, distanceTolerance);
-    auto segmentCloud = pointProcessor->SegmentPlane(inputCloud, maxIterations, distanceTolerance);
+    std::pair<pcl::PointCloud<pcl::PointXYZ>::Ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr> segmentCloud = pointProcessor->SegmentPlane(inputCloud, maxIterations, distanceTolerance);
 
     renderPointCloud(viewer, segmentCloud.first, "obstCloud", Color(1, 0, 0));
 

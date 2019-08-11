@@ -68,7 +68,7 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
 
 // *** gpokhark Ransac implementation START ***
 template <typename PointT>
-std::unordered_set<int> RansacPlane(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceTol)
+std::unordered_set<int> ProcessPointClouds<PointT>::RansacPlane(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceTol)
 {
   // Time segmentation process
   auto startTime = std::chrono::steady_clock::now();
@@ -172,30 +172,30 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
   // pcl::PointIndices::Ptr inliers;
   // TODO:: Fill in this function to find inliers for the cloud.
 
-  // *** PCL segmentation START ***
-  pcl::SACSegmentation<PointT> seg;
-  pcl::PointIndices::Ptr inliers{new pcl::PointIndices};
-  pcl::ModelCoefficients::Ptr coefficients{new pcl::ModelCoefficients};
-
-  seg.setOptimizeCoefficients(true);
-  seg.setModelType(pcl::SACMODEL_PLANE);
-  seg.setMethodType(pcl::SAC_RANSAC);
-  seg.setMaxIterations(maxIterations);         // maxIterations = 1000
-  seg.setDistanceThreshold(distanceThreshold); // distanceThreshold = 0.01
-
-  // Segment the largest planar component from the input cloud
-  seg.setInputCloud(cloud);
-  seg.segment(*inliers, *coefficients);
-  // *** PCL segmentation END ***
-
-  // // *** gpokhark segmentation START ***
-  // std::unordered_set<int> inliersSet = RansacPlane(cloud, maxIterations, distanceThreshold);
+  // // *** PCL segmentation START ***
+  // pcl::SACSegmentation<PointT> seg;
   // pcl::PointIndices::Ptr inliers{new pcl::PointIndices};
-  // for (int i : inliersSet)
-  // {
-  //   inliers->indices.push_back(i);
-  // }
-  // // *** gpokhark segmentation END ***
+  // pcl::ModelCoefficients::Ptr coefficients{new pcl::ModelCoefficients};
+
+  // seg.setOptimizeCoefficients(true);
+  // seg.setModelType(pcl::SACMODEL_PLANE);
+  // seg.setMethodType(pcl::SAC_RANSAC);
+  // seg.setMaxIterations(maxIterations);         // maxIterations = 1000
+  // seg.setDistanceThreshold(distanceThreshold); // distanceThreshold = 0.01
+
+  // // Segment the largest planar component from the input cloud
+  // seg.setInputCloud(cloud);
+  // seg.segment(*inliers, *coefficients);
+  // // *** PCL segmentation END ***
+
+  // *** gpokhark segmentation START ***
+  std::unordered_set<int> inliersSet = RansacPlane(cloud, maxIterations, distanceThreshold);
+  pcl::PointIndices::Ptr inliers{new pcl::PointIndices};
+  for (int i : inliersSet)
+  {
+    inliers->indices.push_back(i);
+  }
+  // *** gpokhark segmentation END ***
 
   if (inliers->indices.size() == 0)
   {
