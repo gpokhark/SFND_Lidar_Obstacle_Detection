@@ -1,14 +1,16 @@
-// PCL lib Functions for processing point clouds
-
 #include "processPointClouds.h"
 
 //constructor:
 template <typename PointT>
-ProcessPointClouds<PointT>::ProcessPointClouds() {}
+ProcessPointClouds<PointT>::ProcessPointClouds()
+{
+}
 
 //de-constructor:
 template <typename PointT>
-ProcessPointClouds<PointT>::~ProcessPointClouds() {}
+ProcessPointClouds<PointT>::~ProcessPointClouds()
+{
+}
 
 template <typename PointT>
 void ProcessPointClouds<PointT>::numPoints(typename pcl::PointCloud<PointT>::Ptr cloud)
@@ -31,6 +33,82 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
 
   return cloud;
 }
+
+// *** gpokhark Ransac implementation START ***
+template <typename PointT>
+std::unordered_set<int> RansacPlane(typename pcl::PointCloud<PointT>::Ptr &cloud, int maxIterations, float distanceTol)
+{
+  // Time segmentation process
+  auto startTime = std::chrono::steady_clock::now();
+
+  std::unordered_set<int> inliersResult;
+  srand(time(NULL));
+
+  // TODO: Fill in this function
+  // For max iterations
+  // Randomly sample subset and fit line
+  // Measure distance between every point and fitted line
+  // If distance is smaller than threshold count it as inlier
+  // Return indicies of inliers from fitted line with most inliers
+
+  while (maxIterations--)
+  {
+    // Randomly pick two points
+    std::unordered_set<int> inliers;
+    while (inliers.size() < 3)
+    {
+      inliers.insert(rand() % (cloud->points.size()));
+    }
+    float x1, y1, z1, x2, y2, z2, x3, y3, z3;
+    auto itr = inliers.begin();
+    x1 = cloud->points[*itr].x;
+    y1 = cloud->points[*itr].y;
+    z1 = cloud->points[*itr].z;
+    itr++;
+    x2 = cloud->points[*itr].x;
+    y2 = cloud->points[*itr].y;
+    z2 = cloud->points[*itr].z;
+    itr++;
+    x3 = cloud->points[*itr].x;
+    y3 = cloud->points[*itr].y;
+    z3 = cloud->points[*itr].z;
+
+    float A = (y2 - y1) * (z3 - z1) - (z2 - z1) * (y3 - y1);
+    float B = (z2 - z1) * (x3 - x1) - (x2 - x1) * (z3 - z1);
+    float C = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
+    float D = -1 * (A * x1 + B * y1 + C * z1);
+
+    for (int index = 0; index < cloud->points.size(); index++)
+    {
+      if (inliers.count(index) > 0)
+      {
+        continue;
+      }
+      else
+      {
+        float x4 = cloud->points[index].x;
+        float y4 = cloud->points[index].y;
+        float z4 = cloud->points[index].z;
+        float d = fabs(A * x4 + B * y4 + C * z4 + D) / sqrt(A * A + B * B + C * C);
+
+        if (d <= distanceTol)
+        {
+          inliers.insert(index);
+        }
+      }
+    }
+    if (inliers.size() > inliersResult.size())
+    {
+      inliersResult = inliers;
+    }
+  }
+  auto endTime = std::chrono::steady_clock::now();
+  auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+  std::cout << "RANSAC took" << elapsedTime.count() << " milliseconds" << std::endl;
+
+  return inliersResult;
+}
+// *** gpokhark Ransac implementation END ***
 
 template <typename PointT>
 std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(pcl::PointIndices::Ptr inliers, typename pcl::PointCloud<PointT>::Ptr cloud)
@@ -78,8 +156,14 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
   seg.segment(*inliers, *coefficients);
   // *** PCL segmentation END ***
 
-  // *** gpokhark segmentation START ***
-  // *** gpokhark segmentation END ***
+  // // *** gpokhark segmentation START ***
+  // std::unordered_set<int> inliersSet = RansacPlane(cloud, maxIterations, distanceThreshold);
+  // pcl::PointIndices::Ptr inliers{new pcl::PointIndices};
+  // for (int i : inliersSet)
+  // {
+  //   inliers->indices.push_back(i);
+  // }
+  // // *** gpokhark segmentation END ***
 
   if (inliers->indices.size() == 0)
   {
@@ -130,14 +214,13 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
   std::vector<std::vector<int>> clusters_indices = euclideanCluster(points, tree, clusterTolerance);
   // *** gpokhark euclidean clustering END ***
 
-
   // for (pcl::PointIndices getIndices : clusters_indices) //PCL implementation
   for (std::vector<int> getIndices : clusters_indices) // gpokhark implementation
   {
     typename pcl::PointCloud<PointT>::Ptr cloudCluster(new pcl::PointCloud<PointT>);
 
     // for (int index : getIndices.indices) //PCL implementation
-    for ( int index : getIndices) // gpokhark implementation
+    for (int index : getIndices) // gpokhark implementation
     {
       cloudCluster->points.push_back(cloud->points[index]);
     }
