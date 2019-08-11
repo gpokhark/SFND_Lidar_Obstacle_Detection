@@ -66,9 +66,9 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
   return cloudRegion;
 }
 
-// *** gpokhark Ransac implementation START ***
+// *** gpokhark Ransac implementation START *** //
 template <typename PointT>
-std::unordered_set<int> RansacPlane(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceTol)
+std::unordered_set<int> ProcessPointClouds<PointT>::RansacPlane(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceTol)
 {
   // Time segmentation process
   auto startTime = std::chrono::steady_clock::now();
@@ -140,7 +140,7 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud<PointT>::Ptr cloud,
 
   return inliersResult;
 }
-// *** gpokhark Ransac implementation END ***
+// *** gpokhark Ransac implementation END *** //
 
 template <typename PointT>
 std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(pcl::PointIndices::Ptr inliers, typename pcl::PointCloud<PointT>::Ptr cloud)
@@ -172,30 +172,30 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
   // pcl::PointIndices::Ptr inliers;
   // TODO:: Fill in this function to find inliers for the cloud.
 
-  // *** PCL segmentation START ***
-  pcl::SACSegmentation<PointT> seg;
-  pcl::PointIndices::Ptr inliers{new pcl::PointIndices};
-  pcl::ModelCoefficients::Ptr coefficients{new pcl::ModelCoefficients};
-
-  seg.setOptimizeCoefficients(true);
-  seg.setModelType(pcl::SACMODEL_PLANE);
-  seg.setMethodType(pcl::SAC_RANSAC);
-  seg.setMaxIterations(maxIterations);         // maxIterations = 1000
-  seg.setDistanceThreshold(distanceThreshold); // distanceThreshold = 0.01
-
-  // Segment the largest planar component from the input cloud
-  seg.setInputCloud(cloud);
-  seg.segment(*inliers, *coefficients);
-  // *** PCL segmentation END ***
-
-  // // *** gpokhark segmentation START ***
-  // std::unordered_set<int> inliersSet = RansacPlane(cloud, maxIterations, distanceThreshold);
+  // // *** PCL segmentation START *** //
+  // pcl::SACSegmentation<PointT> seg;
   // pcl::PointIndices::Ptr inliers{new pcl::PointIndices};
-  // for (int i : inliersSet)
-  // {
-  //   inliers->indices.push_back(i);
-  // }
-  // // *** gpokhark segmentation END ***
+  // pcl::ModelCoefficients::Ptr coefficients{new pcl::ModelCoefficients};
+
+  // seg.setOptimizeCoefficients(true);
+  // seg.setModelType(pcl::SACMODEL_PLANE);
+  // seg.setMethodType(pcl::SAC_RANSAC);
+  // seg.setMaxIterations(maxIterations);         // maxIterations = 1000
+  // seg.setDistanceThreshold(distanceThreshold); // distanceThreshold = 0.01
+
+  // // Segment the largest planar component from the input cloud
+  // seg.setInputCloud(cloud);
+  // seg.segment(*inliers, *coefficients);
+  // // *** PCL segmentation END *** //
+
+  // *** gpokhark segmentation START *** //
+  std::unordered_set<int> inliersSet = RansacPlane(cloud, maxIterations, distanceThreshold);
+  pcl::PointIndices::Ptr inliers{new pcl::PointIndices};
+  for (int i : inliersSet)
+  {
+    inliers->indices.push_back(i);
+  }
+  // *** gpokhark segmentation END *** //
 
   if (inliers->indices.size() == 0)
   {
@@ -221,7 +221,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
 
   // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
 
-  // // *** PCL Implementation Start ***
+  // // *** PCL Implementation Start *** //
   // typename pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>);
   // tree->setInputCloud(cloud);
   // std::vector<pcl::PointIndices> clusters_indices;
@@ -232,9 +232,9 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
   // ec.setSearchMethod(tree);
   // ec.setInputCloud(cloud);
   // ec.extract(clusters_indices);
-  // // *** PCL Implementation End ***
+  // // *** PCL Implementation End *** //
 
-  // *** gpokhark euclidean clustering START ***
+  // *** gpokhark euclidean clustering START *** //
   KdTree *tree = new KdTree;
   std::vector<std::vector<float>> points;
   for (int i = 0; i < cloud->points.size(); i++)
@@ -244,7 +244,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
     tree->insert(points[i], i);
   }
   std::vector<std::vector<int>> clusters_indices = euclideanCluster(points, tree, clusterTolerance);
-  // *** gpokhark euclidean clustering END ***
+  // *** gpokhark euclidean clustering END *** //
 
   // for (pcl::PointIndices getIndices : clusters_indices) //PCL implementation
   for (std::vector<int> getIndices : clusters_indices) // gpokhark implementation
@@ -259,13 +259,12 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
     cloudCluster->width = cloudCluster->points.size();
     cloudCluster->height = 1;
     cloudCluster->is_dense = true;
-    
-    // To set minimum and maximum cluster size added if block 
+
+    // To set minimum and maximum cluster size added if block
     if (cloudCluster->width >= minSize && cloudCluster->width <= maxSize)
     {
       clusters.push_back(cloudCluster);
     }
-
   }
 
   auto endTime = std::chrono::steady_clock::now();

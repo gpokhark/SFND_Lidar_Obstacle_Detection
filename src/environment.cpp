@@ -70,8 +70,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr &viewer)
     ProcessPointClouds<pcl::PointXYZ> *pointProcessor = new ProcessPointClouds<pcl::PointXYZ>();
     int maxIterations = 100;
     float distanceTolerance = 0.2;
-    //std::pair<pcl::PointCloud<pcl::PointXYZ>::Ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr> segmentCloud = pointProcessor->SegmentPlane(inputCloud, maxIterations, distanceTolerance);
-    auto segmentCloud = pointProcessor->SegmentPlane(inputCloud, maxIterations, distanceTolerance);
+    std::pair<pcl::PointCloud<pcl::PointXYZ>::Ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr> segmentCloud = pointProcessor->SegmentPlane(inputCloud, maxIterations, distanceTolerance);
 
     renderPointCloud(viewer, segmentCloud.first, "obstCloud", Color(1, 0, 0));
 
@@ -80,7 +79,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr &viewer)
     if (render_plane)
         renderPointCloud(viewer, segmentCloud.second, "planeCloud", Color(0, 1, 0));
 
-    float clusterTolerance = 3.0;
+    float clusterTolerance = 0.5;
     int minClusterSize = 15;
     int maxClusterSize = 600;
     std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, clusterTolerance, minClusterSize, maxClusterSize);
@@ -111,7 +110,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr &viewer)
 // *** for streaming data continuously *** //
 void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPointClouds<pcl::PointXYZI> *pointProcessorI, const pcl::PointCloud<pcl::PointXYZI>::Ptr &inputCloud)
 
-// *** for stand alone data file ***//
+// *** for stand alone data file *** //
 //void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer)
 {
     // ----------------------------------------------------
@@ -122,16 +121,16 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPointCloud
     bool filtered_PointCloud = false;
 
     bool render_obst = false;
-    bool render_plane = false;
+    bool render_plane = true;
 
     bool render_clusters = true;
     bool render_box = true;
 
-    // // *** for stand alone data file ***//
+    // // *** for stand alone data file *** //
     // // instantiate on heap
     // ProcessPointClouds<pcl::PointXYZI> *pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
     // pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud = pointProcessorI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
-    // // *** for stand alone data file ***//
+    // // *** for stand alone data file *** //
 
     // Generate PCL point cloud
     if (render_PointCloud)
@@ -139,8 +138,8 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPointCloud
 
     // Experiment with the ? values and find what works best
     float filterResolution = 0.3;
-    Eigen::Vector4f minPoint(-10, -5, -2, 1);
-    Eigen::Vector4f maxPoint(30, 8, 1, 1);
+    Eigen::Vector4f minPoint(-10, -6, -3, 1);
+    Eigen::Vector4f maxPoint(30, 6, 4, 1);
     pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud = pointProcessorI->FilterCloud(inputCloud, filterResolution, minPoint, maxPoint);
     if (filtered_PointCloud)
         renderPointCloud(viewer, filterCloud, "filterCloud");
@@ -156,7 +155,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPointCloud
     if (render_plane)
         renderPointCloud(viewer, segmentCloud.second, "planeCloud", Color(0, 1, 0));
 
-    float clusterTolerance = 0.5;
+    float clusterTolerance = 0.4;
     int minClusterSize = 15;
     int maxClusterSize = 600;
     std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessorI->Clustering(segmentCloud.first, clusterTolerance, minClusterSize, maxClusterSize);
